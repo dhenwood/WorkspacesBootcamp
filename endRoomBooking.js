@@ -1,5 +1,9 @@
 import xapi from 'xapi';
 
+// End Room Booking Macro
+// Contributers:
+// - Darren Henwood (dhenwood@cisco.com)
+
 var bookingId;
 var meetingId;
 
