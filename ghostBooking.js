@@ -65,7 +65,7 @@ const USE_GUI_INTERACTION = true;
  * Tip: For huddle spaces those numbers are usually smaller, while for bigger boardrooms we recommend larger thresholds
  */
 const MIN_BEFORE_BOOK = 5; // in minutes 
-const MIN_BEFORE_RELEASE = 5; // in minutes 
+const MIN_BEFORE_RELEASE = 1; // in minutes 
 
 const USE_ULTRASOUND = !USE_PEOPLE_COUNT_ONLY ? true : false;
 let alertDuration;
