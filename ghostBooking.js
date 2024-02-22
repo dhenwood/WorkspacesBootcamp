@@ -9,9 +9,9 @@
 
 const xapi = require('xapi');
 
-/* 
+/*
  * ********************************
- * EDIT THIS SECTION BELOW 
+ * EDIT THIS SECTION BELOW
  * ********************************
  */
 
@@ -50,11 +50,11 @@ const USE_PRESENCE_AND_COUNT = false;
  */
 const USE_GUI_INTERACTION = true;
 
-/* 
+/*
  * *********************************
  * *********************************
  * *********************************
- *  DO NOT CHANGE BELOW THIS LINE 
+ *  DO NOT CHANGE BELOW THIS LINE
  * *********************************
  * *********************************
  * *********************************
@@ -64,8 +64,8 @@ const USE_GUI_INTERACTION = true;
 /* Set the thresholds. They define how much time it needs to pass before a room is booked or released
  * Tip: For huddle spaces those numbers are usually smaller, while for bigger boardrooms we recommend larger thresholds
  */
-const MIN_BEFORE_BOOK = 5; // in minutes 
-const MIN_BEFORE_RELEASE = 1; // in minutes 
+const MIN_BEFORE_BOOK = 5; // in minutes
+const MIN_BEFORE_RELEASE = 1; // in minutes
 
 const USE_ULTRASOUND = !USE_PEOPLE_COUNT_ONLY ? true : false;
 let alertDuration;
@@ -87,7 +87,7 @@ class PresenceDetector {
             presenceSound: false,
             sharing: false,
         };
-        // flags for full/empty room timers 
+        // flags for full/empty room timers
         this._lastFullTimer = 0;
         this._lastEmptyTimer = 0;
         this._roomIsFull = false;
@@ -137,8 +137,8 @@ class PresenceDetector {
         }
     }
     _processPresence() {
-        /* 
-         *  Logic for the presence information gathered from 
+        /*
+         *  Logic for the presence information gathered from
          *  the Cisco equipment.
          */
         if (this._isRoomOccupied()) {
@@ -217,7 +217,7 @@ class PresenceDetector {
     }
 
     async updatePresence() {
-        /* 
+        /*
          * Polling the Cisco information
          * and getting presence information
          */
@@ -241,11 +241,11 @@ class PresenceDetector {
             this._data.peopleCount = peopleCount === -1 ? 0 : peopleCount;
             this._data.peoplePresence = presence;
             if (!USE_ULTRASOUND) {
-                // if ultrasound is disabled we set people presence 
-                // based only of image reconigition 
+                // if ultrasound is disabled we set people presence
+                // based only of image reconigition
                 this._data.peoplePresence = this._data.peopleCount > 0 ? true : false;
             }
-            // process conference calls 
+            // process conference calls
             if (numCalls > 0 && USE_ACTIVE_CALLS) {
                 this._data.inCall = true;
                 this._data.peoplePresence = true;
@@ -285,28 +285,8 @@ async function beginDetection() {
                     meetingId = booking.Booking.MeetingId;
                     bookingIsActive = true;
                     listenerShouldCheck = true;
-
-                    //each minutes it check if _checkPresenceAndProcess should be called (in order to declare a room empty or full).
-                    //This is done because the update depends on listeners and if no events are detected the method will never be called
-                    forcedUpdate = setInterval(() => {
-
-                        if (presence._isRoomOccupied()) {
-                            if ((presence._lastFullTimer != 0)) {
-                                if (Date.now() > (presence._lastFullTimer + MIN_BEFORE_BOOK * 60000)) {
-                                    console.log("It's been a while since nothing happen... Forced update");
-                                    presence._checkPresenceAndProcess();
-                                }
-                            }
-                        } else {
-                            if (presence._lastEmptyTimer != 0) {
-                                if (Date.now() > (presence._lastEmptyTimer + MIN_BEFORE_RELEASE * 60000) && !presence._roomIsEmpty) {
-                                    console.log("It's been a while since nothing happen... Forced update");
-                                    presence._checkPresenceAndProcess();
-                                }
-                            }
-                        }
-
-                    }, (MIN_BEFORE_BOOK * 60000) + 1000);
+                    
+                    forcedUpdate = setInterval(forceAnUpdate, (MIN_BEFORE_BOOK * 60000) + 1000);
                 });
             } else {
                 bookingId = null;
@@ -363,8 +343,8 @@ async function beginDetection() {
             console.log("Presence: " + presenceValue);
             presenceValue = presenceValue === 'Yes' ? true : false;
             if (!USE_ULTRASOUND) {
-                // if ultrasound is disabled we set people presence 
-                // based only of image reconigition 
+                // if ultrasound is disabled we set people presence
+                // based only of image reconigition
                 presenceValue = presence._data.peopleCount ? true : false;
             }
             presence._data.peoplePresence = presenceValue;
@@ -396,8 +376,8 @@ async function beginDetection() {
             presence._data.peopleCount = nb_people === -1 ? 0 : nb_people;
 
             if (!USE_ULTRASOUND) {
-                // if ultrasound is disabled we set people presence 
-                // based only of image reconigition 
+                // if ultrasound is disabled we set people presence
+                // based only of image reconigition
                 if (nb_people > 0) {
                     presence._data.peoplePresence = true;
                 } else {
@@ -502,6 +482,27 @@ async function beginDetection() {
         }
     });
 
+}
+
+function forceAnUpdate(){
+    console.log("TestingNewFunction");
+    
+    if (presence._isRoomOccupied()) {
+        if ((presence._lastFullTimer != 0)) {
+            if (Date.now() > (presence._lastFullTimer + MIN_BEFORE_BOOK * 60000)) {
+                console.log("It's been a while since nothing happen... Forced update");
+                presence._checkPresenceAndProcess();
+            }
+        }
+    } else {
+        if (presence._lastEmptyTimer != 0) {
+            if (Date.now() > (presence._lastEmptyTimer + MIN_BEFORE_RELEASE * 60000) && !presence._roomIsEmpty) {
+                console.log("It's been a while since nothing happen... Forced update");
+                presence._checkPresenceAndProcess();
+            }
+        }
+    }
+     
 }
 
 
